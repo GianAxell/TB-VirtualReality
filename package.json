@@ -6,7 +6,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "webpack --config config/webpack.config.js",
+    "build": "webpack --progress --config config/webpack.config.js",
     "serve": "webpack-dev-server --mode=development --config config/webpack.config.js"
   },
   "devDependencies": {

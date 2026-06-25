@@ -7,7 +7,7 @@ const distPath = path.join(rootPath, 'dist')
 const srcPath = path.join(rootPath, 'src')
 
 const ATTRIBUTES_TO_EXPAND = [
-  'src', 'gltf-model', 'cover-image-url', 'footer-image-url', 'watermark-image-url',
+  'gltf-model', 'cover-image-url', 'footer-image-url', 'watermark-image-url',
 ]
 
 const makeJsLoader = () => ({
@@ -53,13 +53,7 @@ const makeDefaultHtmlLoader = () => ({
       esModule: false,
       sources: {
         list: [
-          '...',
-          {
-            tag: 'script',
-            attribute: 'src',
-            type: 'src',
-            filter: () => false,
-          },
+          { tag: 'img', attribute: 'src', type: 'src' },
           ...ATTRIBUTES_TO_EXPAND.map(attr => ({
             tag: '*',
             attribute: attr,

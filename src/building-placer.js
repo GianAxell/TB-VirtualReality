@@ -10,6 +10,7 @@ export const BuildingPlacerComponent = {
     this.selectedType = null
     this.lastValidPos = null
     this.ghostVisible = false
+    this.moveModeBuilding = null
 
     this.createGhost()
 
@@ -18,6 +19,7 @@ export const BuildingPlacerComponent = {
     this.ground.addEventListener('touchmove', (e) => this.onMove(e))
 
     this.el.sceneEl.addEventListener('building-selected', (e) => {
+      this.cancelMoveMode()
       this.selectedCategory = e.detail.category
       this.selectedType = e.detail.typeId
       this.updateGhostShape()
@@ -27,9 +29,32 @@ export const BuildingPlacerComponent = {
       if (e.target.classList?.contains('building')) {
         const bid = parseInt(e.target.dataset.buildingId)
         const building = this.citySim.state.buildings.find(b => b.id === bid)
-        if (building) showBuildingModal(building)
+        if (building) {
+          this.cancelMoveMode()
+          showBuildingModal(building)
+        }
       }
     })
+
+    this.el.sceneEl.addEventListener('building-move-start', (e) => {
+      this.moveModeBuilding = e.detail.buildingId
+      const building = this.citySim.state.buildings.find(b => b.id === this.moveModeBuilding)
+      if (building && building.entity) {
+        building.entity.setAttribute('material', 'opacity', '0.35')
+      }
+    })
+  },
+
+  cancelMoveMode() {
+    if (this.moveModeBuilding !== null) {
+      const building = this.citySim.state.buildings.find(b => b.id === this.moveModeBuilding)
+      if (building && building.entity) {
+        building.entity.setAttribute('material', 'opacity', '1')
+      }
+      if (this.ghost) this.ghost.setAttribute('visible', 'false')
+      this.ghostVisible = false
+      this.moveModeBuilding = null
+    }
   },
 
   createGhost() {
@@ -49,18 +74,41 @@ export const BuildingPlacerComponent = {
     return { x: Math.round(pos.x), y: pos.y, z: Math.round(pos.z) }
   },
 
-  isOccupied(pos) {
+  isOccupied(pos, excludeId) {
     return this.citySim.state.buildings.some(
-      b => Math.abs(b.position.x - pos.x) < 0.6 && Math.abs(b.position.z - pos.z) < 0.6
+      b => b.id !== excludeId && Math.abs(b.position.x - pos.x) < 0.6 && Math.abs(b.position.z - pos.z) < 0.6
     )
   },
 
   onMove(event) {
-    if (!this.selectedType || !this.ghost) return
     const intersection = event.detail?.intersection
     if (!intersection) return
 
     const snap = this.gridSnap(intersection.point)
+
+    if (this.moveModeBuilding !== null) {
+      const building = this.citySim.state.buildings.find(b => b.id === this.moveModeBuilding)
+      const bt = getBuildingType(building?.category, building?.typeId)
+      if (!bt) return
+
+      const occupied = this.isOccupied(snap, this.moveModeBuilding)
+      const valid = !occupied
+
+      this.ghost.setAttribute('position', snap)
+      this.ghost.setAttribute('visible', 'true')
+      this.ghostVisible = true
+      this.ghost.setAttribute('geometry', {
+        primitive: 'box',
+        width: bt.w || 1,
+        height: bt.h || 1,
+        depth: bt.d || 1,
+      })
+      this.ghost.setAttribute('material', 'color', valid ? '#42A5F5' : '#FF5252')
+      this.lastValidPos = valid ? snap : null
+      return
+    }
+
+    if (!this.selectedType || !this.ghost) return
     const bt = getBuildingType(this.selectedCategory, this.selectedType)
     if (!bt) return
 
@@ -95,6 +143,24 @@ export const BuildingPlacerComponent = {
     if (!intersection) return
 
     const pos = this.gridSnap(intersection.point)
+
+    if (this.moveModeBuilding !== null) {
+      const occupied = this.isOccupied(pos, this.moveModeBuilding)
+      if (occupied) return
+
+      const building = this.citySim.state.buildings.find(b => b.id === this.moveModeBuilding)
+      if (building && building.entity) {
+        building.entity.setAttribute('material', 'opacity', '1')
+      }
+
+      this.citySim.moveBuilding(this.moveModeBuilding, pos)
+      this.el.sceneEl.emit('building-moved', { buildingId: this.moveModeBuilding })
+      if (this.ghost) this.ghost.setAttribute('visible', 'false')
+      this.ghostVisible = false
+      this.moveModeBuilding = null
+      return
+    }
+
     const bt = getBuildingType(this.selectedCategory, this.selectedType)
     if (!bt || !this.citySim.canAfford(bt.cost) || this.isOccupied(pos)) return
 
@@ -103,6 +169,7 @@ export const BuildingPlacerComponent = {
 
     const el = document.createElement('a-entity')
     el.setAttribute('position', pos)
+    el.setAttribute('rotation', '0 0 0')
     el.setAttribute('gltf-model', bt.model)
     el.classList.add('building')
     el.dataset.buildingId = building.id

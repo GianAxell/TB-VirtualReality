@@ -11,7 +11,12 @@ Player membangun kota dengan menempatkan bangunan 3D low-poly di atas ground pla
 - **4 Kategori Bangunan:** Residential, Commercial, Industrial, Parks — masing-masing dengan efek berbeda
 - **14 Tipe Bangunan:** Dari rumah sederhana hingga power plant, masing-masing dengan 3 level upgrade
 - **Simulasi Ekonomi:** Tick tiap 1 detik — hitung income, expense, populasi growth, happiness
-- **Upgrade & Remove:** Setiap bangunan bisa di-upgrade (max 3 level) atau di-remove dengan refund 50%
+- **Upgrade:** Setiap bangunan bisa di-upgrade (max 3 level) dengan animasi scale
+- **Rotate:** Putar bangunan 90° per klik dengan animasi elastic
+- **Move:** Pindahkan bangunan ke posisi grid lain dengan ghost preview biru (gratis)
+- **Remove:** Hapus bangunan dengan refund 50%
+- **Main Menu:** Layar utama dengan Play, Settings (placeholder), dan Exit (Goodbye overlay)
+- **Mute Button:** Tombol toggle mute (♪ / ✕) di pojok kiri atas (placeholder BGM)
 - **Win/Lose Condition:** Menang jika populasi ≥ 2000 & uang ≥ $10.000; kalah jika bangkrut tanpa bangunan
 - **UI Classic Game:** Tampilan dark solid dengan border, Courier New, warna bold — SimCity 2000 vibe
 - **Multi-platform:** Desktop (mouse), Mobile AR (touch), VR (gaze/controller)
@@ -20,12 +25,17 @@ Player membangun kota dengan menempatkan bangunan 3D low-poly di atas ground pla
 
 ## Cara Bermain
 
-1. Pilih kategori bangunan dari **bottom bar** (Homes, Shops, Indus, Parks)
-2. Pilih tipe bangunan dari **scrollable card row**
-3. Klik/tap **ground plane** untuk menempatkan bangunan (ada ghost preview hijau/merah)
-4. Klik/tap **bangunan yang sudah ada** untuk upgrade (3 level) atau remove (refund 50%)
-5. Pantau **HUD** di atas untuk uang, populasi, happiness, dan income rate
-6. Capai **populasi 2000 + uang $10.000** untuk menang!
+1. **Main Menu:** Klik **PLAY** untuk memulai game
+2. Pilih kategori bangunan dari **bottom bar** (Homes, Shops, Indus, Parks)
+3. Pilih tipe bangunan dari **scrollable card row**
+4. Klik/tap **ground plane** untuk menempatkan bangunan (ada ghost preview hijau/merah)
+5. Klik/tap **bangunan yang sudah ada** untuk membuka modal:
+   - **UPGRADE** — naikkan level (max 3), scale +15% per level
+   - **ROTATE 90°** — putar bangunan 90° searah jarum jam
+   - **MOVE** — pindahkan bangunan ke posisi lain (ghost biru)
+   - **REMOVE** — hapus bangunan, refund 50%
+6. Pantau **HUD** di atas untuk uang, populasi, happiness, dan income rate
+7. Capai **populasi 2000 + uang $10.000** untuk menang!
 
 ---
 
@@ -50,13 +60,13 @@ Hasil build production ada di folder `dist/`.
 
 ```
 src/
-├── app.js                  Entry point — register A-Frame components
+├── app.js                  Entry point — register A-Frame components, init main menu
 ├── index.html              Scene 3D (A-Frame) dengan asset GLB & lighting
 ├── index.css               Semua styling — UI classic game dark theme
-├── city-sim.js             Engine simulasi — game tick, ekonomi, state
-├── building-placer.js      Penempatan bangunan — grid snap, ghost preview
+├── city-sim.js             Engine simulasi — game tick, ekonomi, state, rotate/move
+├── building-placer.js      Penempatan bangunan — grid snap, ghost preview, move mode
 ├── building-types.js       Data bangunan — nama, model, cost, stats
-├── ui.js                   UI rendering — HUD, toolbar, modal, overlay
+├── ui.js                   UI rendering — main menu, HUD, toolbar, modal, mute button
 └── assets/
     ├── Skybox/             GLB skybox model
     ├── Terrain/            Ground textures

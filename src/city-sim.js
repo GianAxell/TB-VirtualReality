@@ -16,11 +16,18 @@ export const CitySimComponent = {
       gameOver: false,
     };
     this.nextId = 0;
+    this.tickInterval = null;
+    this.started = false;
+  },
+
+  startGame() {
+    if (this.started) return;
+    this.started = true;
     this.tickInterval = setInterval(() => this.gameTick(), 1000);
   },
 
   remove() {
-    clearInterval(this.tickInterval);
+    if (this.tickInterval) clearInterval(this.tickInterval);
   },
 
   gameTick() {
@@ -95,6 +102,7 @@ export const CitySimComponent = {
       typeId,
       category,
       position: { ...position },
+      rotation: 0,
       level: 1,
       entity: null,
     };
@@ -125,6 +133,38 @@ export const CitySimComponent = {
         to: `${scale} ${scale} ${scale}`,
         easing: "easeOutElastic",
         dur: 500,
+      });
+    }
+    return true;
+  },
+
+  rotateBuilding(buildingId, angle) {
+    const b = this.state.buildings.find((x) => x.id === buildingId);
+    if (!b) return false;
+    b.rotation = ((b.rotation + angle) % 360 + 360) % 360;
+    if (b.entity) {
+      const rotStr = `0 ${b.rotation} 0`;
+      b.entity.setAttribute("animation", {
+        property: "rotation",
+        to: rotStr,
+        easing: "easeOutElastic",
+        dur: 400,
+      });
+    }
+    return true;
+  },
+
+  moveBuilding(buildingId, newPosition) {
+    const b = this.state.buildings.find((x) => x.id === buildingId);
+    if (!b) return false;
+    b.position = { ...newPosition };
+    if (b.entity) {
+      const posStr = `${newPosition.x} ${newPosition.y} ${newPosition.z}`;
+      b.entity.setAttribute("animation", {
+        property: "position",
+        to: posStr,
+        easing: "easeOutCubic",
+        dur: 300,
       });
     }
     return true;

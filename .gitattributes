@@ -3,3 +3,7 @@
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 src/assets/** filter=lfs diff=lfs merge=lfs -text
 external/** filter=lfs diff=lfs merge=lfs -text
+src/assets/manifest.json -filter -diff -merge
+src/assets/sw.js -filter -diff -merge
+src/assets/icons/icon-192.png -filter -diff -merge
+src/assets/icons/icon-512.png -filter -diff -merge

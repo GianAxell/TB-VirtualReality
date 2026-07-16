@@ -4,5 +4,13 @@
   "framework": null,
   "git": {
     "lfs": true
-  }
+  },
+  "headers": [
+    {
+      "source": "/assets/sw.js",
+      "headers": [
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    }
+  ]
 }

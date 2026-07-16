@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>A-Frame: City Builder</title>
+    <link rel="manifest" href="assets/manifest.json" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/assets/sw.js', { scope: '/' });
+        });
+      }
+    </script>
     <meta itemprop="name" content="A-Frame: City Builder" />
     <meta name="twitter:title" content="A-Frame: City Builder" />
     <meta property="og:title" content="A-Frame: City Builder" />
